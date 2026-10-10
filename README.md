@@ -41,7 +41,7 @@ curl -X POST "https://deliveryrisk-api-889571326423.southamerica-east1.run.app/p
   "risco_atraso": false,
   "probabilidade_atraso": 0.415,
   "nivel_risco": "MÉDIO",
-  "mensagem": "✅ Entrega dentro do prazo esperado. Probabilidade de atraso: 41.5% — nível MÉDIO."
+  "mensagem": "🟡 Risco MÉDIO de atraso (41.5%). Abaixo do limiar de alerta, mas vale acompanhar."
 }
 ```
 
@@ -94,17 +94,31 @@ deliveryrisk-api/
 
 ## Métricas do modelo
 
-O modelo foi treinado com **96.470 pedidos reais** do dataset Olist (e-commerce brasileiro, 2016-2018):
+Treinado com **96.470 pedidos reais** do dataset Olist (e-commerce brasileiro, 2016–2018). Apenas **6,8% dos pedidos atrasam**, então o problema é bem desbalanceado e a acurácia sozinha engana.
 
-| Métrica | Valor |
-|---|---|
-| Acurácia | 75,2% |
-| Precisão | 15,7% |
-| **Recall** | **61,0%** |
+| Métrica | Modelo | Referência |
+|---|---|---|
+| Recall (atrasos detectados) | **61,0%** | 0% (modelo que sempre diz "no prazo") |
+| Precisão (alertas corretos) | **15,7%** | 6,8% (alertar ao acaso) |
+| Acurácia | 75,2% | 93,2% (modelo que sempre diz "no prazo") |
 
-**Por que o recall é a métrica principal?** Com apenas 6,8% de atrasos, um modelo que erra para o lado conservador é melhor do que um que deixa atrasos passarem. O modelo detecta **6 de cada 10 atrasos reais** antes da entrega.
+**Como ler isso na prática.** A cada 1.000 pedidos, cerca de 68 atrasam. O modelo:
 
-### Fatores mais importantes
+- detecta **~41 dos 68 atrasos** antes de acontecerem;
+- gera **~264 alertas**, ou seja, a operação revisa ~26% dos pedidos em vez de 100%;
+- tem precisão **2,3x maior** que escolher pedidos ao acaso.
+
+**Por que priorizar o recall?** Na operação logística, um atraso não detectado custa mais (cliente insatisfeito, reclamação, reembolso) do que um alerta falso, que custa só uma checagem preventiva. A troca é consciente: a precisão é baixa e muitos alertas não viram atraso.
+
+Por isso a API devolve a **probabilidade** e um **nível de risco**, não só sim/não:
+
+| Nível | Probabilidade | Significado |
+|---|---|---|
+| ALTO | ≥ 50% | Alerta do modelo (`risco_atraso: true`). É neste limiar que valem as métricas acima |
+| MÉDIO | 30% a 50% | Abaixo do limiar, mas vale acompanhar |
+| BAIXO | < 30% | Risco baixo |
+
+## Fatores mais importantes
 
 | Feature | Importância |
 |---|---|
@@ -114,7 +128,11 @@ O modelo foi treinado com **96.470 pedidos reais** do dataset Olist (e-commerce 
 | Valor do frete | 9,1% |
 | Estado RJ | 8,0% |
 
-O **mês da compra** é o fator dominante — confirma que períodos de pico (Black Friday, início de 2018) são o maior risco operacional.
+## Limitações conhecidas
+
+- **Dependência do calendário:** o mês da compra é a feature dominante. No dataset Olist, os atrasos se concentram em períodos específicos (Black Friday de 2017, início de 2018). Parte do que o modelo aprendeu pode ser "quando" o pedido foi feito, e não um padrão que se repete em outros anos.
+- **Validação:** o split atual é aleatório. O próximo passo é validar com **split temporal** (treinar no passado, testar no futuro), que simula o uso real em produção.
+- **Importância das features:** calculada pelo método padrão do Random Forest, que tende a favorecer variáveis com muitas categorias. O plano é comparar com *permutation importance*.
 
 ---
 
