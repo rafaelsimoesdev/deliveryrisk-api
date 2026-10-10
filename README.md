@@ -3,19 +3,20 @@
 **Modelo de previsão de risco de atraso de entregas em produção**  
 *Python · FastAPI · scikit-learn · Docker · GCP Cloud Run*
 
-**🔗 Demo ao vivo:** [Testar a API (Swagger)](https://deliveryrisk-api-889571326423.southamerica-east1.run.app/docs)
+**🔗 Demo ao vivo:** [Testar a API (Swagger)](https://deliveryrisk-api-889571326423.southamerica-east1.run.app/docs)  
+*A API fica "dormindo" quando não está em uso: a primeira requisição pode levar alguns segundos.*
 
 ---
 
 ## Sobre o projeto
 
-Este projeto pega o modelo do [Projeto 2 — Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas), o revalida, o recalibra e o coloca no ar como uma API REST documentada, containerizada com Docker e hospedada no Google Cloud Run.
+Este projeto pega o modelo do projeto [Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas), o revalida, o recalibra e o coloca no ar como uma API REST documentada, containerizada com Docker e hospedada no Google Cloud Run.
 
 **Problema:** atrasos de entrega são um dos maiores problemas de satisfação no e-commerce. Saber com antecedência quais pedidos têm risco de atraso permite agir antes que o cliente seja impactado.
 
 **Solução:** uma API que recebe os dados do pedido **no momento da compra** e devolve a probabilidade de atraso, o nível de risco (BAIXO, MÉDIO ou ALTO) e se há alerta.
 
-**O que aprendi no caminho:** a validação do Projeto 2 era otimista. Ao testar o modelo "treinando no passado e prevendo o futuro", descobri que o mês da compra, que parecia o fator mais importante, só decorava o calendário de 2017-2018. Removi essa variável e documentei os limites reais do modelo na seção [Validação no tempo](#validação-no-tempo-o-que-mudou-desde-o-projeto-2).
+**O que aprendi no caminho:** a validação do projeto original era otimista. Ao testar o modelo "treinando no passado e prevendo o futuro", descobri que o mês da compra, que parecia o fator mais importante, só decorava o calendário de 2017-2018. Removi essa variável e documentei os limites reais do modelo na seção [Validação no tempo](#validação-no-tempo-o-que-mudou-desde-o-modelo-original).
 
 ---
 
@@ -110,7 +111,7 @@ deliveryrisk-api/
 
 O modelo foi treinado com **96.470 pedidos reais** do dataset Olist (e-commerce brasileiro, 2016-2018), usando só informações disponíveis no momento da compra. Apenas **6,8%** dos pedidos atrasam, então a acurácia sozinha engana: um modelo que responde "nunca atrasa" acerta 93,2% e não detecta nenhum atraso. Por isso a comparação usa ROC-AUC e PR-AUC, que não dependem de um limiar.
 
-Resultados em 20% dos pedidos, separados aleatoriamente antes do treino (a mesma divisão do Projeto 2):
+Resultados em 20% dos pedidos, separados aleatoriamente antes do treino (a mesma divisão do projeto original):
 
 | Modelo | Acurácia | Precisão | Recall | ROC-AUC | PR-AUC |
 |---|---|---|---|---|---|
@@ -155,9 +156,9 @@ O Random Forest com `class_weight="balanced"` infla as probabilidades: pedidos c
 
 ---
 
-## Validação no tempo: o que mudou desde o Projeto 2
+## Validação no tempo: o que mudou desde o modelo original
 
-No Projeto 2, o **mês da compra** aparecia como o fator mais importante (cerca de 30%). Isso levantou uma suspeita: a base cobre só dois anos, e os atrasos se concentram em episódios específicos (novembro de 2017 e fevereiro-março de 2018). O modelo podia estar decorando esse calendário em vez de aprender algo que se repete.
+No projeto original, o **mês da compra** aparecia como o fator mais importante (cerca de 30%). Isso levantou uma suspeita: a base cobre só dois anos, e os atrasos se concentram em episódios específicos (novembro de 2017 e fevereiro-março de 2018). O modelo podia estar decorando esse calendário em vez de aprender algo que se repete.
 
 Para testar, recuperei a data de cada pedido e treinei o modelo **só com o que veio antes** de cada período, testando nele (`train/validacao_temporal.py`):
 
@@ -171,7 +172,7 @@ Para testar, recuperei a data de cada pedido e treinei o modelo **só com o que 
 **O que descobri:**
 - Na divisão aleatória, o mês acrescentava cerca de 0,06 de ROC-AUC. Ao prever o futuro, esse ganho **desaparece**: ele ajuda em alguns períodos e atrapalha em outros. O mês não generaliza.
 - O modelo mantém algum sinal em 3 dos 4 períodos (ROC-AUC de 0,64 a 0,69, sem o mês), mas menos do que a divisão aleatória sugeria (0,75 com o mês, 0,69 sem).
-- No último período (jun a ago/2018), o modelo fica próximo do acaso e superestima o risco: o atraso real caiu para 3,5%, contra 7,6% no treino.
+- No último período (jun a ago/2018), o modelo fica próximo do acaso e superestima o risco. Treinando até maio/2018 (atraso de 7,6%) e testando no período seguinte, o modelo previu em média 7,5% de atraso, mas o real foi de apenas 3,5%.
 
 **O que corrigi:** removi o mês da compra do modelo. O modelo em produção e todos os números das seções anteriores usam só as variáveis que sobrevivem ao teste no tempo.
 
@@ -246,8 +247,10 @@ gcloud run deploy deliveryrisk-api \
 
 Este projeto faz parte de um portfólio de ML com foco em logística e e-commerce:
 
-- **Projeto 2 — [Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas):** EDA, pré-processamento e treinamento dos modelos
-- **Projeto 3 — DeliveryRisk API (este repositório):** validação no tempo, calibração e deploy do modelo em produção com FastAPI + Docker + GCP
+- **[Dashboard de Logística Olist](https://github.com/rafaelsimoesdev/olist-logistica-powerbi):** análise dos atrasos em Power BI (onde a entrega falha)
+- **[Previsão de Demanda Olist](https://github.com/rafaelsimoesdev/previsao-demanda-olist):** previsão do volume diário de pedidos
+- **[Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas):** EDA, pré-processamento e treinamento dos modelos
+- **DeliveryRisk API (este repositório):** validação no tempo, calibração e deploy do modelo em produção com FastAPI + Docker + GCP
 
 **Autor:** Rafael Simões — [LinkedIn](https://linkedin.com/in/rafael-sim%C3%B5es-556979239) · [GitHub](https://github.com/rafaelsimoesdev)  
 **Dataset:** [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) — Kaggle
