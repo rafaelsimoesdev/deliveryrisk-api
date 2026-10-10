@@ -3,7 +3,7 @@ Schema de entrada da API DeliveryRisk.
 Define os campos que o cliente precisa enviar para obter a previsão.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Literal
 
 
@@ -17,10 +17,6 @@ ESTADOS_BRASILEIROS = [
 class PedidoInput(BaseModel):
     """Dados do pedido disponíveis no momento da compra."""
 
-    mes_compra: int = Field(
-        ..., ge=1, le=12,
-        description="Mês em que o pedido foi realizado (1-12)"
-    )
     dia_semana_compra: int = Field(
         ..., ge=0, le=6,
         description="Dia da semana da compra (0=segunda, 6=domingo)"
@@ -58,10 +54,9 @@ class PedidoInput(BaseModel):
         description="UF do cliente (sigla do estado)"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
-                "mes_compra": 11,
                 "dia_semana_compra": 4,
                 "prazo_prometido_dias": 12,
                 "qtd_itens": 2,
@@ -72,16 +67,22 @@ class PedidoInput(BaseModel):
                 "estado_cliente": "SP"
             }
         }
+    )
 
 
 class PrevisaoOutput(BaseModel):
     """Resultado da previsão de atraso."""
 
-    risco_atraso: bool = Field(description="True se o modelo prevê atraso")
+    risco_atraso: bool = Field(
+        description="True quando há alerta de atraso (nível MÉDIO ou ALTO)"
+    )
     probabilidade_atraso: float = Field(
-        description="Probabilidade de atraso (0.0 a 1.0)"
+        description="Probabilidade calibrada de atraso (0.0 a 1.0)"
     )
     nivel_risco: Literal["BAIXO", "MÉDIO", "ALTO"] = Field(
-        description="Classificação do risco em três faixas"
+        description=(
+            "BAIXO: abaixo do limiar de alerta. MÉDIO: alerta. "
+            "ALTO: probabilidade de pelo menos o dobro da taxa média de atraso."
+        )
     )
     mensagem: str = Field(description="Resumo legível do resultado")
