@@ -1,0 +1,93 @@
+{
+  "janelas_moveis": [
+    {
+      "janela": "2017-11 a 2018-01",
+      "pedidos_treino": 30892,
+      "taxa_atraso_janela": 0.0865,
+      "roc_auc_com_mes": 0.652,
+      "roc_auc_sem_mes": 0.6399,
+      "pr_auc_com_mes": 0.1492
+    },
+    {
+      "janela": "2018-02 a 2018-03",
+      "pedidos_treino": 50762,
+      "taxa_atraso_janela": 0.1662,
+      "roc_auc_com_mes": 0.6681,
+      "roc_auc_sem_mes": 0.6819,
+      "pr_auc_com_mes": 0.2938
+    },
+    {
+      "janela": "2018-04 a 2018-05",
+      "pedidos_treino": 64320,
+      "taxa_atraso_janela": 0.0553,
+      "roc_auc_com_mes": 0.6519,
+      "roc_auc_sem_mes": 0.6874,
+      "pr_auc_com_mes": 0.1143
+    },
+    {
+      "janela": "2018-06 a 2018-08",
+      "pedidos_treino": 77867,
+      "taxa_atraso_janela": 0.0361,
+      "roc_auc_com_mes": 0.5557,
+      "roc_auc_sem_mes": 0.5061,
+      "pr_auc_com_mes": 0.044
+    }
+  ],
+  "treino": {
+    "inicio": "2016-09-15",
+    "fim": "2018-05-26",
+    "pedidos": 77176
+  },
+  "teste": {
+    "inicio": "2018-05-26",
+    "fim": "2018-08-29",
+    "pedidos": 19294
+  },
+  "taxa_atraso_mensal": {
+    "2016-10": 0.0075,
+    "2017-01": 0.0293,
+    "2017-02": 0.0296,
+    "2017-03": 0.0456,
+    "2017-04": 0.0656,
+    "2017-05": 0.0299,
+    "2017-06": 0.0303,
+    "2017-07": 0.0279,
+    "2017-08": 0.0291,
+    "2017-09": 0.0439,
+    "2017-10": 0.0418,
+    "2017-11": 0.124,
+    "2017-12": 0.0746,
+    "2018-01": 0.057,
+    "2018-02": 0.1413,
+    "2018-03": 0.1896,
+    "2018-04": 0.045,
+    "2018-05": 0.0656,
+    "2018-06": 0.0116,
+    "2018-07": 0.0338,
+    "2018-08": 0.0619
+  },
+  "resultados": {
+    "com_mes_compra": {
+      "roc_auc": 0.5573,
+      "pr_auc": 0.0412,
+      "limiar": 0.0837,
+      "recall": 0.0831,
+      "precisao": 0.0467,
+      "alertas_pct": 0.0621,
+      "prob_media_prevista": 0.0649,
+      "taxa_real_teste": 0.0349,
+      "taxa_real_treino": 0.0759
+    },
+    "sem_mes_compra": {
+      "roc_auc": 0.524,
+      "pr_auc": 0.0378,
+      "limiar": 0.0822,
+      "recall": 0.3145,
+      "precisao": 0.0367,
+      "alertas_pct": 0.2996,
+      "prob_media_prevista": 0.0752,
+      "taxa_real_teste": 0.0349,
+      "taxa_real_treino": 0.0759
+    }
+  }
+}
