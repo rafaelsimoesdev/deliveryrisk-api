@@ -48,10 +48,15 @@ app = FastAPI(
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+# Limiar de decisão do modelo: é nele que valem as métricas de validação.
+LIMIAR_ALERTA = 0.50
+
+
 def _nivel_risco(prob: float) -> str:
+    """BAIXO < 0.30 <= MÉDIO < 0.50 (limiar) <= ALTO."""
     if prob < 0.30:
         return "BAIXO"
-    elif prob < 0.60:
+    elif prob < LIMIAR_ALERTA:
         return "MÉDIO"
     return "ALTO"
 
@@ -106,20 +111,21 @@ def predict(pedido: PedidoInput):
     try:
         X = _pedido_para_features(pedido)
         prob = float(MODEL.predict_proba(X)[0][1])
-        risco = prob >= 0.5
+        risco = prob >= LIMIAR_ALERTA
         nivel = _nivel_risco(prob)
 
-        if risco:
+        if nivel == "ALTO":
             mensagem = (
-                f"⚠️ Risco de atraso detectado. "
-                f"Probabilidade: {prob*100:.1f}% — nível {nivel}. "
+                f"⚠️ Risco ALTO de atraso ({prob*100:.1f}%). "
                 "Recomenda-se monitoramento preventivo."
             )
-        else:
+        elif nivel == "MÉDIO":
             mensagem = (
-                f"✅ Entrega dentro do prazo esperado. "
-                f"Probabilidade de atraso: {prob*100:.1f}% — nível {nivel}."
+                f"🟡 Risco MÉDIO de atraso ({prob*100:.1f}%). "
+                "Abaixo do limiar de alerta, mas vale acompanhar."
             )
+        else:
+            mensagem = f"✅ Risco BAIXO de atraso ({prob*100:.1f}%)."
 
         return PrevisaoOutput(
             risco_atraso=risco,
