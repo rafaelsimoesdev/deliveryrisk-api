@@ -247,6 +247,7 @@ gcloud run deploy deliveryrisk-api \
 
 Este projeto faz parte de um portfólio de ML com foco em logística e e-commerce:
 
+- **[Torre de Controle de E-commerce com IA](https://github.com/rafaelsimoesdev/torre-controle-ecommerce-ia):** do dado bruto ao relatório diário no Telegram, com SQL, ML e assistente com Gemini
 - **[Dashboard de Logística Olist](https://github.com/rafaelsimoesdev/olist-logistica-powerbi):** análise dos atrasos em Power BI (onde a entrega falha)
 - **[Previsão de Demanda Olist](https://github.com/rafaelsimoesdev/previsao-demanda-olist):** previsão do volume diário de pedidos
 - **[Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas):** EDA, pré-processamento e treinamento dos modelos
