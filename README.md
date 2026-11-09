@@ -253,5 +253,5 @@ Este projeto faz parte de um portfólio de ML com foco em logística e e-commerc
 - **[Previsão de Atraso de Entrega](https://github.com/rafaelsimoesdev/previsao-atraso-entregas):** EDA, pré-processamento e treinamento dos modelos
 - **DeliveryRisk API (este repositório):** validação no tempo, calibração e deploy do modelo em produção com FastAPI + Docker + GCP
 
-**Autor:** Rafael Simões — [LinkedIn](https://linkedin.com/in/rafael-sim%C3%B5es-556979239) · [GitHub](https://github.com/rafaelsimoesdev)  
+**Autor:** Rafael Simões — [LinkedIn](https://www.linkedin.com/in/rafaelsimoesdev) · [GitHub](https://github.com/rafaelsimoesdev)  
 **Dataset:** [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) — Kaggle
